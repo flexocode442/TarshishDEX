@@ -36,7 +36,6 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
 !.env.example
 !.env.staging.example
 
@@ -58,6 +57,8 @@ next-env.d.ts
 src/contracts/**/target
 src/contracts/**/test_snapshots
 # Environment
-.env.local
-.env.production
 .stellar/
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+config.bat
