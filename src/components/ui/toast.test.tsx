@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import { ToastViewport, toast, useToastStore } from "@/components/ui/toast";
+import { MAX_TOASTS, ToastViewport, toast, useToastStore } from "@/components/ui/toast";
 
 /** Reset the store and the module-level id counter between tests. */
 beforeEach(() => {
@@ -45,6 +45,21 @@ describe("useToastStore.push", () => {
       vi.advanceTimersByTime(1);
     });
     expect(useToastStore.getState().toasts).toHaveLength(0);
+  });
+});
+
+describe("useToastStore.push cap", () => {
+  it("caps concurrent toasts at MAX_TOASTS, evicting the oldest", () => {
+    for (let i = 0; i < MAX_TOASTS + 3; i++) {
+      useToastStore.getState().push(`toast-${i}`);
+    }
+
+    const toasts = useToastStore.getState().toasts;
+    expect(toasts).toHaveLength(MAX_TOASTS);
+    // The oldest 3 were evicted; the newest MAX_TOASTS remain.
+    expect(toasts.map((t) => t.message)).toEqual(
+      Array.from({ length: MAX_TOASTS }, (_, i) => `toast-${i + 3}`)
+    );
   });
 });
 

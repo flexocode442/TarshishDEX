@@ -20,11 +20,20 @@ interface ToastStore {
 
 let nextId = 1;
 
+/** Maximum number of toasts rendered at once; older toasts are evicted. */
+export const MAX_TOASTS = 5;
+
 export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   push: (message, tone = "info") => {
     const id = nextId++;
-    set((state) => ({ toasts: [...state.toasts, { id, message, tone }] }));
+    set((state) => {
+      const toasts = [...state.toasts, { id, message, tone }];
+      // Cap concurrent toasts: evict the oldest once we exceed the limit.
+      return {
+        toasts: toasts.length > MAX_TOASTS ? toasts.slice(toasts.length - MAX_TOASTS) : toasts,
+      };
+    });
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 5000);
